@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UnityPackage Extractor</title>
+
+    <link rel="icon" href="./favicon.ico">
+
+    <!-- Included Dependencies -->
+    <script src="./unityextract.js"></script>
+    <script src="./vendor/pako.min.js"></script>
+    <script src="./vendor/untar.js"></script>
+    <script src="./vendor/jszip.min.js"></script>
+    <script src="./vendor/jquery-3.6.1.min.js"></script>
+    <link rel="stylesheet" href="./vendor/bulma.css">
+
+
+    <style>
+
+        @font-face {
+            font-family: Main;
+            src: url("https://samsidparty.com/Fonts/Main.otf");
+        }
+        
+        body{
+            margin: 0;
+            height: 100vh;
+            background-image: url("./background.png");
+            background-position: center;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        #centerbox {
+            margin: auto;
+            margin-left: 10px;
+            margin-right: 10px;
+            background-color: rgba(255, 255, 255, 0);
+            box-shadow: none;
+        }
+
+        * {
+            font-family: Main !important;
+        }
+
+        h1, h2 {
+            color: white;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="box has-text-centered" id="centerbox">
+            
+            <h1>UnityPackage Extractor (JS Port) v1.0</h1>
+            <br>
+
+            <div class="block">
+                <label for="fileInput" class="button is-dark">                          
+                    <h2 id="filesText">Select UnityPackage</h2>
+                </label>
+
+                <input id="fileInput" accept=".unitypackage" type="file" id="file" multiple oninput="fileChanged(this)" style="display: none;">
+            </div>
+
+            <div class="field">
+                <input id="useMeta" type="checkbox" name="useMeta" class="switch is-link" checked="checked">
+                <label for="useMeta" style="color: white;">Extract Meta Files</label>
+            </div>
+              
+
+            <div class="block"><button onclick="extractFile()" id="extractButton" class="button is-link">Extract</button></div>
+
+            <div class="block"><h2 id="statusText">Not Initialized</h2></div>
+
+            <br>
+        </div>
+
+    </div>
+
+
+    <script>
+
+        function fileChanged(input){
+
+            document.getElementById("filesText").innerText = "";
+
+            (Array.from(input.files)).forEach(element => {
+                document.getElementById("filesText").innerText += ", " + element.name;
+            });
+
+            //Get Rid Of Comma In Beginning
+            document.getElementById("filesText").innerText = document.getElementById("filesText").innerText.replace(", ", "");
+        }
+
+        var extractionIndex = 0;
+        function extractFile(){
+
+            extractionIndex = 0;
+
+            var input = document.getElementById("fileInput");
+            reader = new FileReader();
+
+            reader.onloadend = function(e){
+                document.getElementById("extractButton").classList.add("is-loading");
+                extract(e.target.result, document.getElementById("useMeta").checked, input.files[extractionIndex].name);
+
+                extractionIndex += 1;
+                if (input.files[extractionIndex]){
+                    //Extract Next File
+                    reader.readAsArrayBuffer(input.files[extractionIndex]);
+                }
+                else{
+                    document.getElementById("extractButton").classList.remove("is-loading");
+                }
+            }
+
+            reader.readAsArrayBuffer(input.files[extractionIndex]);
+        }
+    </script>
+</body>
+</html>
